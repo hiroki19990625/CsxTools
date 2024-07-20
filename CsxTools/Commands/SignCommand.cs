@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -22,18 +23,21 @@ public class SignCommand : Command
         };
         AddArgument(fileNameArgs);
         AddOption(certFileOption);
-        
-        this.SetHandler((fileName, certFile) =>
+
+        async Task OnHandler(InvocationContext context)
         {
+            var fileName = fileNameArgs.GetValueForHandlerParameter(context);
+            var certFile = certFileOption.GetValueForHandlerParameter(context);
+            
             if (!File.Exists(fileName))
             {
-                Console.WriteLine($"File not found. ({fileName})");
+                context.Console.WriteLine($"File not found. ({fileName})");
                 return;
             }
 
             if (Path.GetExtension(fileName) != ".csx")
             {
-                Console.WriteLine($"File extension not support. ({fileName})");
+                context.Console.WriteLine($"File extension not support. ({fileName})");
                 return;
             }
             
@@ -55,6 +59,8 @@ public class SignCommand : Command
             var signBuffer = ecDsa.SignData(sourceBuffer, HashAlgorithmName.SHA256);
             
             File.WriteAllText($"{fileName}.sign", Convert.ToHexString(signBuffer));
-        }, fileNameArgs, certFileOption);
+        }
+
+        this.SetHandler(OnHandler);
     }
 }

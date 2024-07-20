@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.CommandLine.IO;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -153,8 +154,13 @@ public partial class MainWindow : Window
 
     private async void Save_OnClick(object? sender, RoutedEventArgs e)
     {
+        await Save();
+    }
+
+    private async Task Save()
+    {
         if (_currentFile == null)
-            SaveAs_OnClick(sender, e);
+            await SaveAs();
         else
         {
             await using var stream = await _currentFile.OpenWriteAsync();
@@ -171,6 +177,11 @@ public partial class MainWindow : Window
 
     private async void SaveAs_OnClick(object? sender, RoutedEventArgs e)
     {
+        await SaveAs();
+    }
+
+    private async Task SaveAs()
+    {
         var directory = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
@@ -185,6 +196,8 @@ public partial class MainWindow : Window
         });
         if (file != null)
         {
+            _currentFile = file;
+            
             await using var stream = await file.OpenWriteAsync();
             stream.Position = 0;
 
@@ -208,42 +221,104 @@ public partial class MainWindow : Window
         if (string.IsNullOrWhiteSpace(fileName))
             return;
         
-        var args = new List<string>();
-        args.Add("CsxTools.Editor");
-        args.Add("exec");
-        args.Add(fileName);
+        if (_isDirty)
+        {
+            var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+            {
+                ContentHeader = "Warning",
+                ContentMessage = "Do you want to save the file?",
+                ButtonDefinitions = ButtonEnum.YesNo,
+                Icon = MsBox.Avalonia.Enums.Icon.Warning,
+                ShowInCenter = true
+            });
+            var result = await box.ShowAsPopupAsync(this);
+            if (result == ButtonResult.No)
+                return;
+        }
         
-        await new CsxApplication().StartAsync(args.ToArray());
+        await Save();
+        await RunScript(fileName);
     }
-    
+
     private async void RunScriptCustom_OnClick(object? sender, RoutedEventArgs e)
     {
         var fileName = _currentFile?.Path.LocalPath;
         if (string.IsNullOrWhiteSpace(fileName))
             return;
 
+        if (_isDirty)
+        {
+            var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+            {
+                ContentHeader = "Warning",
+                ContentMessage = "Do you want to save the file?",
+                ButtonDefinitions = ButtonEnum.YesNo,
+                Icon = MsBox.Avalonia.Enums.Icon.Warning,
+                ShowInCenter = true
+            });
+            var result = await box.ShowAsPopupAsync(this);
+            if (result == ButtonResult.No)
+                return;
+        }
+
         fileName = Path.GetFullPath(fileName);
         
-        var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+        var box2 = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
         {
-            ContentTitle = "Input",
+            ContentHeader = "Input",
             ContentMessage = "Enter your custom arguments.",
             ButtonDefinitions = ButtonEnum.OkCancel,
             Icon = MsBox.Avalonia.Enums.Icon.Info,
             InputParams = new InputParams(),
             ShowInCenter = true
         });
-        var result = await box.ShowAsPopupAsync(this);
-        if (result == ButtonResult.Cancel)
+        var result2 = await box2.ShowAsPopupAsync(this);
+        if (result2 == ButtonResult.Cancel)
             return;
         
+        await RunScript(fileName, box2.InputValue);
+    }
+
+    private async Task RunScript(string fileName, string? additionalArgs = null)
+    {
         var args = new List<string>();
         args.Add("CsxTools.Editor");
         args.Add("exec");
         args.Add(fileName);
-        args.AddRange(box.InputValue.Split(" ", StringSplitOptions.RemoveEmptyEntries));
         
-        await new CsxApplication().StartAsync(args.ToArray());
+        if (!string.IsNullOrWhiteSpace(additionalArgs))
+            args.AddRange(additionalArgs.Split(" ", StringSplitOptions.RemoveEmptyEntries));
+        
+        var testConsole = new TestConsole();
+        await new CsxApplication().StartAsync(args.ToArray(), testConsole);
+
+        var output = testConsole.Out.ToString();
+        if (!string.IsNullOrWhiteSpace(output))
+        {
+            var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+            {
+                ContentHeader = "Output",
+                ContentMessage = output,
+                ButtonDefinitions = ButtonEnum.Ok,
+                Icon = MsBox.Avalonia.Enums.Icon.Info,
+                ShowInCenter = true
+            });
+            await box.ShowAsPopupAsync(this);
+        }
+
+        var error = testConsole.Error.ToString();
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+            {
+                ContentHeader = "Error",
+                ContentMessage = error,
+                ButtonDefinitions = ButtonEnum.Ok,
+                Icon = MsBox.Avalonia.Enums.Icon.Error,
+                ShowInCenter = true
+            });
+            await box.ShowAsPopupAsync(this);
+        }
     }
 
     private async void Window_OnClosing(object? sender, WindowClosingEventArgs e)
@@ -255,7 +330,7 @@ public partial class MainWindow : Window
             e.Cancel = true;
             var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
             {
-                ContentTitle = "Warning",
+                ContentHeader = "Warning",
                 ContentMessage = "Are you sure you want to close it?",
                 ButtonDefinitions = ButtonEnum.YesNo,
                 Icon = MsBox.Avalonia.Enums.Icon.Warning,
@@ -283,12 +358,12 @@ public partial class MainWindow : Window
         var version = asm.GetName().Version;
         var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
         {
-            ContentTitle = "About CsxEditor",
+            ContentHeader = "About CsxEditor",
             ContentMessage = $"Version: {version.Major}.{version.Minor}.{version.Build}.{version.Revision}",
-            ButtonDefinitions = ButtonEnum.YesNo,
+            ButtonDefinitions = ButtonEnum.Ok,
             Icon = MsBox.Avalonia.Enums.Icon.Info,
             ShowInCenter = true
         });
-        var result = await box.ShowAsPopupAsync(this);
+        await box.ShowAsPopupAsync(this);
     }
 }

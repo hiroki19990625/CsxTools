@@ -9,11 +9,11 @@ public class VersionCommand : Command
     
     public VersionCommand() : base(NAME, string.Empty)
     {
-        this.SetHandler(() =>
+        this.SetHandler(context =>
         {
             var asm = Assembly.GetExecutingAssembly();
             var version = asm.GetName().Version;
-            Console.WriteLine($"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}");
+            context.Console.WriteLine($"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}");
         });
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -34,17 +35,22 @@ public class ExecCommand : Command
         AddOption(isSandboxOption);
         AddOption(certFileOption);
         
-        this.SetHandler(async (fileName, args, isSandbox, certFile) =>
+        async Task OnHandler(InvocationContext context)
         {
+            var fileName = fileNameArgs.GetValueForHandlerParameter(context);
+            var args = argsOption.GetValueForHandlerParameter(context);
+            var isSandbox = isSandboxOption.GetValueForHandlerParameter(context);
+            var certFile = certFileOption.GetValueForHandlerParameter(context);
+            
             if (!File.Exists(fileName))
             {
-                Console.WriteLine($"File not found. ({fileName})");
+                context.Console.WriteLine($"File not found. ({fileName})");
                 return;
             }
 
             if (Path.GetExtension(fileName) != ".csx")
             {
-                Console.WriteLine($"File extension not support. ({fileName})");
+                context.Console.WriteLine($"File extension not support. ({fileName})");
                 return;
             }
 
@@ -58,8 +64,8 @@ public class ExecCommand : Command
             try
             {
                 var source = File.ReadAllText(fileName);
-                var context = new ScriptContext();
-                var script = context.CreateScript<Globals>(source, assemblyFiles, isSandbox);
+                var scriptContext = new ScriptContext();
+                var script = scriptContext.CreateScript<Globals>(source, assemblyFiles, isSandbox);
                 var runner = script.CreateDelegate();
                 var signatureFile = $"{fileName}.sign";
                 if (File.Exists(signatureFile))
@@ -75,17 +81,19 @@ public class ExecCommand : Command
                         throw new SecurityException("Cert verify fail.");
                 }
                 
-                await runner.Invoke(new Globals(args));
+                await runner.Invoke(new Globals(args, new CommandConsole(context.Console)));
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                context.Console.WriteLine(e.ToString());
             }
-        }, fileNameArgs, argsOption, isSandboxOption, certFileOption);
+        }
+        this.SetHandler(OnHandler);
     }
 
-    public class Globals(string[] args)
+    public class Globals(string[] args, ICommandConsole console)
     {
         public string[] args { get; } = args;
+        public ICommandConsole console { get; } = console;
     }
 }
