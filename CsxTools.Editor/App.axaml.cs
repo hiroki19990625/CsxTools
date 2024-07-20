@@ -1,6 +1,10 @@
+#region
+
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+
+#endregion
 
 namespace CsxTools.Editor;
 

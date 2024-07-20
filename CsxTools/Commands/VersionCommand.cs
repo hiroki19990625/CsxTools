@@ -1,12 +1,16 @@
-﻿using System.CommandLine;
+﻿#region
+
+using System.CommandLine;
 using System.Reflection;
+
+#endregion
 
 namespace CsxTools.Commands;
 
 public class VersionCommand : Command
 {
     public static string NAME => "version";
-    
+
     public VersionCommand() : base(NAME, string.Empty)
     {
         this.SetHandler(context =>

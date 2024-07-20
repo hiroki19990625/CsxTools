@@ -1,16 +1,20 @@
-﻿using System.CommandLine;
+﻿#region
+
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using CsxTools.Core;
 
+#endregion
+
 namespace CsxTools.Commands;
 
 public class ExecCommand : Command
 {
     public static string NAME => "exec";
-    
+
     public ExecCommand() : base(NAME, string.Empty)
     {
         var fileNameArgs = new Argument<string>
@@ -34,14 +38,14 @@ public class ExecCommand : Command
         AddOption(argsOption);
         AddOption(isSandboxOption);
         AddOption(certFileOption);
-        
+
         async Task OnHandler(InvocationContext context)
         {
             var fileName = fileNameArgs.GetValueForHandlerParameter(context);
             var args = argsOption.GetValueForHandlerParameter(context);
             var isSandbox = isSandboxOption.GetValueForHandlerParameter(context);
             var certFile = certFileOption.GetValueForHandlerParameter(context);
-            
+
             if (!File.Exists(fileName))
             {
                 context.Console.WriteLine($"File not found. ({fileName})");
@@ -80,7 +84,7 @@ public class ExecCommand : Command
                     if (!ecDsa.VerifyData(sourceBuffer, signBuffer, HashAlgorithmName.SHA256))
                         throw new SecurityException("Cert verify fail.");
                 }
-                
+
                 await runner.Invoke(new Globals(args, new CommandConsole(context.Console)));
             }
             catch (Exception e)
@@ -88,6 +92,7 @@ public class ExecCommand : Command
                 context.Console.WriteLine(e.ToString());
             }
         }
+
         this.SetHandler(OnHandler);
     }
 

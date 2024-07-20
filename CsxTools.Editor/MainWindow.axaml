@@ -16,7 +16,7 @@
                 <Separator />
                 <MenuItem Header="Exit" Click="Exit_OnClick" />
             </MenuItem>
-            
+
             <MenuItem Header="Run">
                 <MenuItem Header="Run Script" Click="RunScript_OnClick" HotKey="Ctrl+R" />
                 <MenuItem Header="Run Script Custom" Click="RunScriptCustom_OnClick" HotKey="Ctrl+Shift+R" />

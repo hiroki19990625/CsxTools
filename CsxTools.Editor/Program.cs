@@ -1,5 +1,9 @@
-﻿using Avalonia;
+﻿#region
+
 using System;
+using Avalonia;
+
+#endregion
 
 namespace CsxTools.Editor;
 

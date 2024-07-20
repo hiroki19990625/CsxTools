@@ -1,4 +1,8 @@
-﻿using System.CommandLine;
+﻿#region
+
+using System.CommandLine;
+
+#endregion
 
 namespace CsxTools.Core;
 

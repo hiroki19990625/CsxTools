@@ -1,4 +1,8 @@
-﻿using Avalonia.Platform.Storage;
+﻿#region
+
+using Avalonia.Platform.Storage;
+
+#endregion
 
 namespace CsxTools.Editor;
 

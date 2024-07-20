@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#region
+
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -6,6 +8,8 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using RoslynPad.Roslyn;
+
+#endregion
 
 namespace CsxTools.Editor;
 
@@ -16,7 +20,8 @@ public class CustomRoslynHost<T>(
     ImmutableArray<string>? analyzerConfigFiles = null)
     : RoslynHost(additionalAssemblies, references, disabledDiagnostics, analyzerConfigFiles)
 {
-    protected override Project CreateProject(Solution solution, DocumentCreationArgs args, CompilationOptions compilationOptions,
+    protected override Project CreateProject(Solution solution, DocumentCreationArgs args,
+        CompilationOptions compilationOptions,
         Project? previousProject = null)
     {
         var name = args.Name ?? "New";

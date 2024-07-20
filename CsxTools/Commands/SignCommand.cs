@@ -1,15 +1,19 @@
-﻿using System.CommandLine;
+﻿#region
+
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+
+#endregion
 
 namespace CsxTools.Commands;
 
 public class SignCommand : Command
 {
     public static string NAME => "sign";
-    
+
     public SignCommand() : base(NAME, string.Empty)
     {
         var fileNameArgs = new Argument<string>
@@ -28,7 +32,7 @@ public class SignCommand : Command
         {
             var fileName = fileNameArgs.GetValueForHandlerParameter(context);
             var certFile = certFileOption.GetValueForHandlerParameter(context);
-            
+
             if (!File.Exists(fileName))
             {
                 context.Console.WriteLine($"File not found. ({fileName})");
@@ -40,7 +44,7 @@ public class SignCommand : Command
                 context.Console.WriteLine($"File extension not support. ({fileName})");
                 return;
             }
-            
+
             var asmListFilePath = $"{fileName}.asmlist";
             var assemblyFiles = string.Empty;
             if (File.Exists(asmListFilePath))
@@ -50,14 +54,14 @@ public class SignCommand : Command
 
             if (!File.Exists(certFile))
                 throw new SecurityException("Require cert file.");
-            
+
             var source = File.ReadAllText(fileName);
 
             var ecDsa = ECDsa.Create();
             ecDsa.ImportFromPem(File.ReadAllText(certFile));
             var sourceBuffer = Encoding.Default.GetBytes(source + assemblyFiles);
             var signBuffer = ecDsa.SignData(sourceBuffer, HashAlgorithmName.SHA256);
-            
+
             File.WriteAllText($"{fileName}.sign", Convert.ToHexString(signBuffer));
         }
 

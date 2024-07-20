@@ -1,6 +1,10 @@
-﻿using System.CommandLine;
+﻿#region
+
+using System.CommandLine;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
+
+#endregion
 
 namespace CsxTools.Commands;
 

@@ -1,8 +1,12 @@
-﻿using System.Reflection;
+﻿#region
+
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
+
+#endregion
 
 namespace CsxTools.Core;
 
@@ -22,7 +26,7 @@ public class ScriptContext
             assemblyMetas.Add(MetadataReference.CreateFromFile(assembly.Location));
             assemblyLoader.RegisterDependency(assembly);
         }
-        
+
         option = option.WithReferences(assemblyMetas);
         return CSharpScript.Create(code, option, typeof(TGlobal), assemblyLoader);
     }

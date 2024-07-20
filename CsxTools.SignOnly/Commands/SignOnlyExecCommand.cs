@@ -1,4 +1,6 @@
-﻿using System.CommandLine;
+﻿#region
+
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Security;
 using System.Security.Cryptography;
@@ -6,12 +8,14 @@ using System.Text;
 using CsxTools.Commands;
 using CsxTools.Core;
 
+#endregion
+
 namespace CsxTools.SignOnly.Commands;
 
 public class SignOnlyExecCommand : Command
 {
     public static string NAME => "exec";
-    
+
     public SignOnlyExecCommand() : base(NAME, string.Empty)
     {
         var fileNameArgs = new Argument<string>
@@ -42,7 +46,7 @@ public class SignOnlyExecCommand : Command
             var args = argsOption.GetValueForHandlerParameter(context);
             var isSandbox = isSandboxOption.GetValueForHandlerParameter(context);
             var certFile = certFileOption.GetValueForHandlerParameter(context);
-            
+
             if (!File.Exists(fileName))
             {
                 context.Console.WriteLine($"File not found. ({fileName})");
@@ -83,7 +87,7 @@ public class SignOnlyExecCommand : Command
                 }
                 else
                     throw new SecurityException("Sign file not found.");
-                
+
                 await runner.Invoke(new Globals(args, new CommandConsole(context.Console)));
             }
             catch (Exception e)

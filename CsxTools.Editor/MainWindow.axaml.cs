@@ -15,9 +15,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using CsxTools.Commands;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using Microsoft.CodeAnalysis.Scripting.Hosting;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
@@ -67,7 +65,7 @@ public partial class MainWindow : Window
         var metas = new List<MetadataReference>();
         var privateCoreAssembly = Assembly.Load("System.Private.CoreLib");
         metas.Add(MetadataReference.CreateFromFile(privateCoreAssembly.Location));
-        
+
         foreach (var meta in ScriptOptions.Default.MetadataReferences.ToList())
         {
             if (meta is not UnresolvedMetadataReference unresolvedMetadataReference)
@@ -76,7 +74,7 @@ public partial class MainWindow : Window
             var assembly = Assembly.Load(unresolvedMetadataReference.Reference);
             metas.Add(MetadataReference.CreateFromFile(assembly.Location));
         }
-        
+
         if (File.Exists(asmListPath))
         {
             var assemblyPaths = await File.ReadAllLinesAsync(asmListPath);
@@ -95,7 +93,7 @@ public partial class MainWindow : Window
             Assembly.Load("RoslynPad.Editor.Avalonia")
         }, RoslynHostReferences.NamespaceDefault.With(
             metas,
-            typeNamespaceImports: new []{ typeof(ExecCommand.Globals) }
+            typeNamespaceImports: new[] { typeof(ExecCommand.Globals) }
         ));
 
         if (_theme == null)
@@ -197,7 +195,7 @@ public partial class MainWindow : Window
         if (file != null)
         {
             _currentFile = file;
-            
+
             await using var stream = await file.OpenWriteAsync();
             stream.Position = 0;
 
@@ -214,13 +212,13 @@ public partial class MainWindow : Window
     {
         Close();
     }
-    
+
     private async void RunScript_OnClick(object? sender, RoutedEventArgs e)
     {
         var fileName = _currentFile?.Path.LocalPath;
         if (string.IsNullOrWhiteSpace(fileName))
             return;
-        
+
         if (_isDirty)
         {
             var box = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
@@ -235,7 +233,7 @@ public partial class MainWindow : Window
             if (result == ButtonResult.No)
                 return;
         }
-        
+
         await Save();
         await RunScript(fileName);
     }
@@ -262,7 +260,7 @@ public partial class MainWindow : Window
         }
 
         fileName = Path.GetFullPath(fileName);
-        
+
         var box2 = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
         {
             ContentHeader = "Input",
@@ -275,7 +273,7 @@ public partial class MainWindow : Window
         var result2 = await box2.ShowAsPopupAsync(this);
         if (result2 == ButtonResult.Cancel)
             return;
-        
+
         await RunScript(fileName, box2.InputValue);
     }
 
@@ -285,10 +283,10 @@ public partial class MainWindow : Window
         args.Add("CsxTools.Editor");
         args.Add("exec");
         args.Add(fileName);
-        
+
         if (!string.IsNullOrWhiteSpace(additionalArgs))
             args.AddRange(additionalArgs.Split(" ", StringSplitOptions.RemoveEmptyEntries));
-        
+
         var testConsole = new TestConsole();
         await new CsxApplication().StartAsync(args.ToArray(), testConsole);
 
