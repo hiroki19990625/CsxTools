@@ -1,6 +1,6 @@
 # CsxTools
 A tool that lets you easily run C# scripts.   
-Includes an editor with completion (no need for Powershell!!!)
+Includes an editor with completion (say goodbye to C# features in PowerShell)
 
 ## Usage
 First, create a csx file and write the C# code.
