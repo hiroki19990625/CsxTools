@@ -2,6 +2,38 @@
 A tool that lets you easily run C# scripts.   
 Includes an editor with completion (no need for Powershell!!!)
 
+## Usage
+First, create a csx file and write the C# code.
+```cs
+console.WriteLine("Hello CSharp Scripting!");
+```
+
+Now all you have to do is run it from the command line.
+```cmd
+CsxTool.exe exec Script.csx
+```
+
+It can also accept command line arguments.
+```cs
+console.WriteLine(string.Join(",", args));
+```
+
+Command line arguments can be passed as follows:
+```cmd
+CsxTool.exe exec Script.csx --args aaa bbb ccc
+```
+
+By passing the sandbox flag you can restrict the classes that can be used to the assemblies specified in the asmlist.
+```cmd
+CsxTool.exe exec Script.csx --sandbox
+```
+
+If you have an assembly you want to register, create a file with the file name (Script.csx)+asmlist.  
+)Ex: Script.csx.asmlist
+```
+path/to/BuildPipeline.Core.dll
+```
+
 ## Third Party Libraries
 
 ### System.CommandLine
