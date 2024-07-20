@@ -2,4 +2,4 @@
 
 using CsxTools.SignOnly;
 
-await new SignOnlyApplication().StartAsync(args);
+await new SignOnlyCsxApplication().StartAsync(args);

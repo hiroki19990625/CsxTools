@@ -2,4 +2,4 @@
 
 using CsxTools;
 
-await new Application().StartAsync(args);
+await new CsxApplication().StartAsync(args);

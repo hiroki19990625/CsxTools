@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:editor="clr-namespace:RoslynPad.Editor;assembly=RoslynPad.Editor.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="CsxTools.Editor.MainWindow"
+        Title="CsxTools.Editor">
+    <Grid RowDefinitions="Auto,*">
+        <Menu Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Header="Open" Click="Open_OnClick" HotKey="Ctrl+O" />
+                <Separator />
+                <MenuItem Header="Save" Click="Save_OnClick" HotKey="Ctrl+S" />
+                <MenuItem Header="Save As" Click="SaveAs_OnClick" HotKey="Ctrl+Shift+S" />
+                <Separator />
+                <MenuItem Header="Exit" Click="Exit_OnClick" />
+            </MenuItem>
+            
+            <MenuItem Header="Run">
+                <MenuItem Header="Run Script" Click="RunScript_OnClick" HotKey="Ctrl+R" />
+                <MenuItem Header="Run Script Custom" Click="RunScriptCustom_OnClick" HotKey="Ctrl+Shift+R" />
+            </MenuItem>
+
+            <MenuItem Header="Help">
+                <MenuItem Header="About CsxEditor" Click="About_OnClick" />
+            </MenuItem>
+        </Menu>
+        <Border Grid.Row="1" Margin="5" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderHighBrush}">
+            <editor:RoslynCodeEditor x:Name="CodeEditor" TextChanged="CodeEditor_OnTextChanged" />
+        </Border>
+    </Grid>
+</Window>

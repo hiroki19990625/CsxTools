@@ -1,0 +1,21 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+    - name: Build with dotnet
+      run: dotnet build -bl -c Release -m:1 src/RoslynPad.sln
+    - uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: logs
+        path: |
+          **/*.binlog
